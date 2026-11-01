@@ -32,24 +32,80 @@ GitHub 不允许纯前端换 token（client_secret 不能出现在浏览器里�
 
 token 只在回调那一次响应里出现：不落日志、不进 Cookie、不写仓库。
 
+## 两条登录路径
+
+`/admin/` 登录页上有两个按钮，各自独立，任一条能用就能进去。
+
+### 路径 A：访问令牌（零配置，实测可用）
+
+「Sign In Using Access Token」→ 粘贴一个 GitHub Personal Access Token。
+
+- 需要权限：classic token 勾 `repo`；fine-grained token 给目标仓库 `Contents: Read and write`
+- token 存在浏览器 localStorage，同一个浏览器下次免输；换设备要重新粘
+- **不依赖 GitHub OAuth App 的任何配置**，所以不会碰到下面那个回调地址的坑
+- 手机端最省事，但粘贴长串令牌略麻烦
+
+### 路径 B：GitHub 授权（体验好，但要求回调地址完全一致）
+
+「Sign In with GitHub」→ 跳 GitHub 授权 → 回调换 token → 自动登录，之后长期免登录。
+
+这条要求 GitHub 上登记的回调地址与 `/auth` 发出的 `redirect_uri`
+**逐字符相同**（协议、域名、路径、结尾斜杠都算）。
+
+当前 `/auth` 发出的值固定是：
+
+```
+https://huruiheng.pages.dev/callback
+```
+
+不一致时的报错长这样：
+
+> **Be careful!** The `redirect_uri` is not associated with this application.
+
+意思是「这个回调地址没有登记在这个应用下」，改登记值即可，代码不用动。
+
+| 你创建的是 | 去哪里改 |
+|---|---|
+| **OAuth App** | Settings → Developer settings → OAuth Apps → `huruiheng-cms` → **Authorization callback URL** |
+| **GitHub App** | Settings → Developer settings → GitHub Apps → `huruiheng-cms` → 左侧 **Identifying and authorizing users** → **Callback URL** |
+
+两者外观很像，用 client ID 前缀分不出来，进去看到哪个界面就改哪个。
+GitHub App 还需要把同一个应用 **Install** 到 `Huuuula/huruiheng-site` 仓库，否则拿到的 token 没有仓库权限。
+
 ## 已经配好的东西
 
-**GitHub OAuth App**：`huruiheng-cms`
+**GitHub OAuth App**：`huruiheng-cms`（Client ID 与 Secret 见仓库外的 `CREDENTIALS.md`）
 
-| 字段 | 值 |
+| 字段 | 应当填的值 |
 |---|---|
 | Homepage URL | `https://huruiheng.pages.dev` |
 | Authorization callback URL | `https://huruiheng.pages.dev/callback` |
 
 **Cloudflare Pages 环境变量**（生产）：
 
-| 名称 | 类型 |
-|---|---|
-| `GITHUB_CLIENT_ID` | 明文 |
-| `GITHUB_CLIENT_SECRET` | 加密（secret_text） |
-| `ALLOWED_DOMAINS` | 明文，`huruiheng.pages.dev,localhost` |
+| 名称 | 类型 | 说明 |
+|---|---|---|
+| `GITHUB_CLIENT_ID` | secret_text | 明文写不进去，见下方「环境变量的坑」 |
+| `GITHUB_CLIENT_SECRET` | secret_text | |
+| `ALLOWED_DOMAINS` | secret_text | `huruiheng.pages.dev,localhost` |
 
 `ALLOWED_DOMAINS` 决定哪个来源能收到 token，换正式域名时要把它加进去。
+
+### 环境变量的坑
+
+Cloudflare 的 `PATCH /pages/projects/{name}` 接受 `type: plain_text`，接口也返回成功，
+但**函数运行时 `env` 里读不到**——表现是 `/auth` 恒返回 `MISSING_CONFIG`。
+三个变量全部设成 `secret_text` 才生效。改完还必须重新部署一次，变量才会注入新版本。
+排查时可以在 `functions/api/` 下临时放一个只回 `Object.keys(env)` 的探针。
+
+## 外部依赖
+
+编辑器主体已自托管在 `public/admin/vendor/sveltia-cms.js`（2.6MB，MIT 许可，仅后台加载）。
+页面里仍保留 unpkg 作兜底，顺序是「先本地，本地失败才走 CDN」——
+原来只引 unpkg，那个域名在境内时通时不通，一旦挂掉整个后台白屏，报错只有一行脚本加载失败，很难判断。
+
+Sveltia 运行时还会从 `cdn.jsdelivr.net` 拉两个字体（Source Sans 3、Material Symbols Outlined）。
+字体拿不到只是图标退化成文字（按钮上出现 `article`、`photo` 这类词），不影响登录和保存。
 
 ## 改域名时要做三件事
 

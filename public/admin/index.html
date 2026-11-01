@@ -7,6 +7,13 @@
     <title>内容管理 · Hu</title>
     <style>
       /* 与站点同色系，避免从站内跳到后台时视觉断裂 */
+      @font-face {
+        font-family: "Source Serif 4";
+        font-style: normal;
+        font-weight: 400 700;
+        font-display: swap;
+        src: url("/fonts/source-serif-4-latin-wght-normal.woff2") format("woff2-variations");
+      }
       body {
         margin: 0;
         font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI",
@@ -26,7 +33,7 @@
       }
       .boot strong {
         font-family: "Source Serif 4", "Songti SC", Georgia, serif;
-        font-size: 24px;
+        font-size: 26px;
         font-weight: 400;
         color: #141413;
       }
@@ -46,13 +53,22 @@
     <div class="boot" id="boot">
       <strong>Hu.</strong>
       <div>正在加载编辑器…</div>
-      <div style="max-width: 30em; line-height: 1.7; font-size: 12px">
-        如果一直停在这里，说明 CMS 的 GitHub OAuth 还没配好。<br />
-        步骤见仓库里的 <code>docs/CMS.md</code>，
-        或直接改 Markdown 后 <code>git push</code> 自动部署。<br />
+      <div style="max-width: 32em; line-height: 1.8; font-size: 12px">
+        正常情况下两秒内就会进入登录页。<br />
+        一直停在这里，先刷新一次；仍然不行就换个浏览器试试。<br />
+        不想用网页后台也行，直接改仓库里的 Markdown，push 后约 30 秒自动上线。<br />
         <a href="/">← 回站点</a>
       </div>
     </div>
-    <script src="https://unpkg.com/@sveltia/cms/dist/sveltia-cms.js"></script>
+    <!--
+      编辑器主体自托管（MIT，2.6MB，仅后台加载，不影响前台）。
+      原来直接引 unpkg.com，那个域名在境内时通时不通，
+      一旦挂掉整个后台就是白屏，且报错只有一行脚本加载失败。
+      保留 CDN 作兜底，顺序是「先本地，本地失败才走 CDN」。
+    -->
+    <script
+      src="/admin/vendor/sveltia-cms.js"
+      onerror="var s=document.createElement('script');s.src='https://unpkg.com/@sveltia/cms@0.256.1/dist/sveltia-cms.js';document.body.appendChild(s);"
+    ></script>
   </body>
 </html>
