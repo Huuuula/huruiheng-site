@@ -1,64 +1,61 @@
 # 后台：Git CMS 接入说明
 
-WordPress 后台无法在 Cloudflare 免费版运行（没有 PHP）。替代方案是 Git CMS：
+WordPress 后台跑不了 Cloudflare 免费版（没有 PHP）。替代方案是 Git CMS：
 在浏览器里写 Markdown、传图、保存，内容以 commit 形式进仓库，触发重新构建。
 
-当前 `/admin/` 已经接好 [Sveltia CMS](https://github.com/sveltia/sveltia-cms)（Decap/Netlify CMS 的现代替代，
-免费、体积小、支持中文界面）。**它需要在你的 GitHub 仓库上启用一次 OAuth，才能写入文件。**
+`/admin/` 接的是 [Sveltia CMS](https://github.com/sveltia/sveltia-cms)（Decap/Netlify CMS 的现代替代，
+免费、体积小、中文界面）。
 
-## 为什么需要 OAuth 代理
+## 架构：为什么 OAuth 端点在站点自己身上
 
-浏览器里的 CMS 要直接调 GitHub API 提交 commit，必须有 access token。GitHub 的网页授权
-不允许纯前端换取 token（client_secret 不能暴露在浏览器里），所以需要一个几十行的代理
-交换 code。这个代理跑在 Cloudflare Workers 免费版上，不产生费用。
+浏览器里的 CMS 要调 GitHub API 提交 commit，必须有 access token。
+GitHub 不允许纯前端换 token（client_secret 不能出现在浏览器里），所以需要一个中转：
 
-## 三步启用
+```
+/admin/ 点登录
+  → https://huruiheng.pages.dev/auth        （本站 Pages Function）
+  → github.com/login/oauth/authorize
+  → https://huruiheng.pages.dev/callback    （本站 Pages Function，换 token）
+  → postMessage 把 token 交给 /admin/
+```
 
-### 1. 创建 GitHub OAuth App
+**没有用 Sveltia 官方那个 workers.dev 代理**，因为 `*.workers.dev` 在境内被 DNS 污染，
+解析到无关的境外 IP，浏览器根本打不开登录弹窗。放在站点同域下，走 pages.dev 这条能通的链路。
 
-打开 <https://github.com/settings/developers> → New OAuth App：
+两个端点就在仓库里：
+
+| 文件 | 作用 |
+|---|---|
+| `functions/auth.ts` | 生成 state、写 HttpOnly Cookie、302 到 GitHub |
+| `functions/callback.ts` | 校验 state、换 access token、postMessage 交回 |
+| `functions/_lib/oauth.ts` | 握手页面与 Cookie 读取 |
+
+token 只在回调那一次响应里出现：不落日志、不进 Cookie、不写仓库。
+
+## 已经配好的东西
+
+**GitHub OAuth App**：`huruiheng-cms`
 
 | 字段 | 值 |
 |---|---|
-| Application name | `huruiheng-cms` |
-| Homepage URL | `https://你的站点域名` |
-| Authorization callback URL | `https://huruiheng-auth.<你的子域>.workers.dev/callback` |
+| Homepage URL | `https://huruiheng.pages.dev` |
+| Authorization callback URL | `https://huruiheng.pages.dev/callback` |
 
-记下 **Client ID** 与 **Client Secret**。
+**Cloudflare Pages 环境变量**（生产）：
 
-### 2. 部署 OAuth 代理
+| 名称 | 类型 |
+|---|---|
+| `GITHUB_CLIENT_ID` | 明文 |
+| `GITHUB_CLIENT_SECRET` | 加密（secret_text） |
+| `ALLOWED_DOMAINS` | 明文，`huruiheng.pages.dev,localhost` |
 
-```bash
-git clone https://github.com/sveltia/sveltia-cms-auth
-cd sveltia-cms-auth
-npm install
-npx wrangler deploy
-npx wrangler secret put GITHUB_CLIENT_ID       # 粘贴上一步的 Client ID
-npx wrangler secret put GITHUB_CLIENT_SECRET   # 粘贴 Client Secret
-```
+`ALLOWED_DOMAINS` 决定哪个来源能收到 token，换正式域名时要把它加进去。
 
-部署后会得到一个 `https://sveltia-cms-auth.<子域>.workers.dev` 地址。
-编辑 `wrangler.toml` 里的 `ALLOWED_DOMAINS`，填你的站点域名（多个用逗号分隔）。
+## 改域名时要做三件事
 
-### 3. 填写配置并部署站点
-
-编辑 `public/admin/config.yml` 顶部两行：
-
-```yaml
-backend:
-  name: github
-  repo: 你的GitHub用户名/huruiheng-site
-  branch: main
-  base_url: https://sveltia-cms-auth.<你的子域>.workers.dev
-```
-
-然后重新部署站点：
-
-```bash
-./scripts/deploy.sh
-```
-
-访问 `https://你的域名/admin/`，用 GitHub 登录即可编辑。
+1. `public/admin/config.yml` 的 `base_url` 改成新域名
+2. GitHub OAuth App 的 Homepage 与 callback 改成新域名
+3. Pages 环境变量 `ALLOWED_DOMAINS` 加上新域名
 
 ## 用起来是什么样
 
@@ -67,9 +64,8 @@ backend:
 | 新建文章 | 后台「文章 → New」，填标题/日期/标签/摘要/正文 |
 | 上传图片 | 编辑器里直接拖入，文件进 `public/uploads/`，自动插入 `/uploads/xx.png` |
 | 草稿 | Sveltia 的 Draft 状态存在浏览器；要真正暂存就开一个分支 |
-| 定时发布 | 写 `date` 为未来日期，构建时过滤（需在模板里加一行判断） |
 | 修订历史 | 每次保存是一个 Git commit，可 diff、可回滚 |
-| 发布 | 保存即提交，Cloudflare Pages 自动重新构建（约 1 分钟） |
+| 发布 | 保存即提交，GitHub Actions 自动构建部署（约 30 秒） |
 
 ## 不接 GitHub 也能改内容
 
@@ -80,7 +76,7 @@ CMS 只是便利层。内容本质是 Markdown 文件：
 # 2. 预览
 pnpm dev
 # 3. 发布
-./scripts/deploy.sh
+git push
 ```
 
 缺点是没有网页端编辑，优点是零依赖、零配置、不依赖任何第三方授权。
@@ -88,5 +84,5 @@ pnpm dev
 ## 如果以后要「完全在 Cloudflare 内」的后台
 
 可以不用 GitHub：Pages Functions + D1 存内容 + R2 存图片 + Cloudflare Access 做登录，
-做一个自定义的轻量后台。代价是要自己实现编辑器与发布流程，工作量约为当前 CMS 方案的 10 倍，
+做一个自定义的轻量后台。代价是要自己实现编辑器与发布流程，工作量约为当前方案的 10 倍，
 且会失去 Git 版本历史。除非有强需求，不建议。

@@ -1,17 +1,15 @@
 # Sveltia CMS 配置
 # 文档：https://github.com/sveltia/sveltia-cms
 #
-# 启用前必须替换两处：
-#   1. repo: 你的 GitHub 仓库（owner/name）
-#   2. base_url: 你部署的 OAuth 代理地址（见 docs/CMS.md）
-#
-# 未配置时访问 /admin/ 会一直停在加载页，不影响前台。
+# 登录走站点自己的 /auth 与 /callback（functions/ 下），不依赖 workers.dev ——
+# 那个域名在境内被 DNS 污染，浏览器打不开登录弹窗。
 
 backend:
   name: github
-  repo: YOUR_GITHUB_USER/huruiheng-site
+  repo: Huuuula/huruiheng-site
   branch: main
-  base_url: https://huruiheng-auth.YOUR_SUBDOMAIN.workers.dev
+  # 同域 OAuth 端点；换正式域名时同步改这里
+  base_url: https://huruiheng.pages.dev
 
 # 中文界面
 locale: zh_Hans
