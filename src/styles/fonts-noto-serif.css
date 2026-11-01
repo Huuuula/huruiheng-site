@@ -1,0 +1,24 @@
+/* ============================================================
+   中文衬线：Noto Serif SC（自托管、按内容子集化）
+   ------------------------------------------------------------
+   由 scripts/subset-fonts.mjs 在 prebuild 阶段生成，
+   只保留本站 src/ 里实际出现的中文字形（当前 824 字 / 142KB）。
+   许可：SIL Open Font License 1.1
+
+   为什么不引 Google 的 unicode-range 分片：那是为未知内容准备的，
+   代价是一篇中文文章要拉 7–10 个分片、约 400KB 的标题字体。
+   本站每次构建都会重算子集，新写的字不会漏。
+
+   只有 400 一个字重。标题的层级靠字号和留白，不靠加粗 ——
+   这条规矩写在 tokens.css 里，这里用字体文件把它钉死。
+   ============================================================ */
+
+@font-face {
+  font-family: "Noto Serif SC";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/noto-serif-sc.woff2") format("woff2");
+  unicode-range: U+2000-206F, U+2E80-303F, U+3400-4DBF, U+4E00-9FFF,
+    U+F900-FAFF, U+FF00-FFEF;
+}

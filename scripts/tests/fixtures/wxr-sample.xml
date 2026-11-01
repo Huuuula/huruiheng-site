@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0"
+     xmlns:excerpt="http://wordpress.org/export/1.2/excerpt/"
+     xmlns:content="http://purl.org/rss/1.0/modules/content/"
+     xmlns:wfw="http://wellformedweb.org/CommentAPI/"
+     xmlns:dc="http://purl.org/dc/elements/1.1/"
+     xmlns:wp="http://wordpress.org/export/1.2/">
+<channel>
+	<title>huruiheng</title>
+	<link>https://huruiheng.eu.org</link>
+	<description>测试用 WXR 样本</description>
+	<wp:wxr_version>1.2</wp:wxr_version>
+	<wp:base_site_url>https://huruiheng.eu.org</wp:base_site_url>
+
+	<wp:category>
+		<wp:term_id>1</wp:term_id>
+		<wp:category_nicename>tech</wp:category_nicename>
+		<wp:cat_name><![CDATA[技术]]></wp:cat_name>
+	</wp:category>
+	<wp:tag>
+		<wp:term_id>2</wp:term_id>
+		<wp:tag_slug>dns</wp:tag_slug>
+		<wp:tag_name><![CDATA[DNS]]></wp:tag_name>
+	</wp:tag>
+
+	<item>
+		<title>中文标题：代码块与图片</title>
+		<link>https://huruiheng.eu.org/?p=101</link>
+		<pubDate>Wed, 20 Mar 2024 10:00:00 +0000</pubDate>
+		<dc:creator>huruiheng</dc:creator>
+		<guid isPermaLink="false">https://huruiheng.eu.org/?p=101</guid>
+		<description></description>
+		<content:encoded><![CDATA[<!-- wp:paragraph -->
+<p>这一篇用来验证 <strong>代码块</strong> 与图片：HTML 实体不能被转坏。</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:code -->
+<pre class="wp-block-code"><code class="language-python">def render(tag: str) -> str:
+    return "&lt;div class=&quot;x&quot;&gt;" if tag and True else "&amp;&amp;"
+</code></pre>
+<!-- /wp:code -->
+
+<!-- wp:image {"id":9} -->
+<figure class="wp-block-image"><img src="https://old.example.com/wp-content/uploads/2024/03/a.png" alt="站点截图" class="wp-image-9"/><figcaption>图一：截图</figcaption></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>内链指向 <a href="https://huruiheng.eu.org/writing/why-dns-first/">先配好 DNS</a>，外链指向 <a href="https://example.org/x?a=1&amp;b=2">example</a>。</p>
+<!-- /wp:paragraph -->]]></content:encoded>
+		<excerpt:encoded><![CDATA[摘要里有实体 &amp; 与中文。]]></excerpt:encoded>
+		<wp:post_id>101</wp:post_id>
+		<wp:post_date>2024-03-20 18:00:00</wp:post_date>
+		<wp:post_date_gmt>2024-03-20 10:00:00</wp:post_date_gmt>
+		<wp:post_name></wp:post_name>
+		<wp:status>publish</wp:status>
+		<wp:post_type>post</wp:post_type>
+		<category domain="category" nicename="tech"><![CDATA[技术]]></category>
+		<category domain="post_tag" nicename="dns"><![CDATA[DNS]]></category>
+		<category domain="post_tag" nicename="%e6%8e%92%e9%94%99"><![CDATA[排错]]></category>
+	</item>
+
+	<item>
+		<title>Oldest Post</title>
+		<link>https://huruiheng.eu.org/?p=102</link>
+		<pubDate>Fri, 05 Jan 2024 10:00:00 +0000</pubDate>
+		<guid isPermaLink="false">https://huruiheng.eu.org/?p=102</guid>
+		<content:encoded><![CDATA[<p>最早的一篇。</p>
+<h2>小节</h2>
+<blockquote><p>引用一行</p><p>引用两行</p></blockquote>
+<ul><li>第一项</li><li>第二项<ul><li>嵌套项</li></ul></li></ul>
+<ol><li>步骤一</li><li>步骤二</li></ol>]]></content:encoded>
+		<excerpt:encoded><![CDATA[]]></excerpt:encoded>
+		<wp:post_id>102</wp:post_id>
+		<wp:post_date>2024-01-05 18:00:00</wp:post_date>
+		<wp:post_name>oldest-post</wp:post_name>
+		<wp:status>publish</wp:status>
+		<wp:post_type>post</wp:post_type>
+		<category domain="post_tag" nicename="dns"><![CDATA[DNS]]></category>
+	</item>
+
+	<item>
+		<title>中间一篇</title>
+		<link>https://huruiheng.eu.org/?p=103</link>
+		<pubDate>Sat, 10 Feb 2024 10:00:00 +0000</pubDate>
+		<guid isPermaLink="false">https://huruiheng.eu.org/?p=103</guid>
+		<content:encoded><![CDATA[<p>正文里的普通段落。</p>]]></content:encoded>
+		<excerpt:encoded><![CDATA[]]></excerpt:encoded>
+		<wp:post_id>103</wp:post_id>
+		<wp:post_date>2024-02-10 18:00:00</wp:post_date>
+		<wp:post_name>%e4%b8%ad%e9%97%b4%e4%b8%80%e7%af%87</wp:post_name>
+		<wp:status>publish</wp:status>
+		<wp:post_type>post</wp:post_type>
+		<category domain="post_tag" nicename="%e6%8e%92%e9%94%99"><![CDATA[排错]]></category>
+		<category domain="post_tag" nicename="dns"><![CDATA[DNS]]></category>
+	</item>
+
+	<item>
+		<title>关于</title>
+		<link>https://huruiheng.eu.org/about/</link>
+		<pubDate>Sun, 31 Dec 2023 10:00:00 +0000</pubDate>
+		<guid isPermaLink="false">https://huruiheng.eu.org/?page_id=2</guid>
+		<content:encoded><![CDATA[<p>我是 Hu。</p>]]></content:encoded>
+		<excerpt:encoded><![CDATA[]]></excerpt:encoded>
+		<wp:post_id>2</wp:post_id>
+		<wp:post_date>2023-12-31 18:00:00</wp:post_date>
+		<wp:post_name>about</wp:post_name>
+		<wp:status>publish</wp:status>
+		<wp:post_type>page</wp:post_type>
+	</item>
+
+	<item>
+		<title>a</title>
+		<link>https://huruiheng.eu.org/wp-content/uploads/2024/03/a.png</link>
+		<pubDate>Wed, 20 Mar 2024 09:00:00 +0000</pubDate>
+		<guid isPermaLink="false">https://huruiheng.eu.org/wp-content/uploads/2024/03/a.png</guid>
+		<content:encoded><![CDATA[]]></content:encoded>
+		<excerpt:encoded><![CDATA[]]></excerpt:encoded>
+		<wp:post_id>9</wp:post_id>
+		<wp:post_date>2024-03-20 17:00:00</wp:post_date>
+		<wp:post_name>a</wp:post_name>
+		<wp:status>inherit</wp:status>
+		<wp:post_type>attachment</wp:post_type>
+		<wp:attachment_url>https://huruiheng.eu.org/wp-content/uploads/2024/03/a.png</wp:attachment_url>
+	</item>
+
+	<item>
+		<title>还没写完的草稿</title>
+		<link>https://huruiheng.eu.org/?p=104</link>
+		<pubDate>Tue, 02 Apr 2024 10:00:00 +0000</pubDate>
+		<guid isPermaLink="false">https://huruiheng.eu.org/?p=104</guid>
+		<content:encoded><![CDATA[<p>草稿正文。</p>]]></content:encoded>
+		<excerpt:encoded><![CDATA[]]></excerpt:encoded>
+		<wp:post_id>104</wp:post_id>
+		<wp:post_date>2024-04-02 18:00:00</wp:post_date>
+		<wp:post_name>draft-post</wp:post_name>
+		<wp:status>draft</wp:status>
+		<wp:post_type>post</wp:post_type>
+	</item>
+
+	<item>
+		<title>回收站里的文章</title>
+		<link>https://huruiheng.eu.org/?p=105</link>
+		<pubDate>Tue, 02 Apr 2024 10:00:00 +0000</pubDate>
+		<guid isPermaLink="false">https://huruiheng.eu.org/?p=105</guid>
+		<content:encoded><![CDATA[<p>已删除。</p>]]></content:encoded>
+		<excerpt:encoded><![CDATA[]]></excerpt:encoded>
+		<wp:post_id>105</wp:post_id>
+		<wp:post_date>2024-04-03 18:00:00</wp:post_date>
+		<wp:post_name>trashed-post</wp:post_name>
+		<wp:status>trash</wp:status>
+		<wp:post_type>post</wp:post_type>
+	</item>
+</channel>
+</rss>

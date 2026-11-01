@@ -78,7 +78,7 @@ const rssUrl = new URL('/feed/', site).href;
     <meta name="twitter:card" content="summary_large_image" />
 
     <meta name="theme-color" content="#faf9f5" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#262624" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#141413" media="(prefers-color-scheme: dark)" />
     <meta name="robots" content="max-image-preview:large" />
 
     <link
@@ -91,6 +91,14 @@ const rssUrl = new URL('/feed/', site).href;
     <link
       rel="preload"
       href="/fonts/source-serif-4-latin-wght-normal.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <!-- 中文标题字体：全站每页的 h1 都用它，属于首屏关键资源 -->
+    <link
+      rel="preload"
+      href="/fonts/noto-serif-sc.woff2"
       as="font"
       type="font/woff2"
       crossorigin

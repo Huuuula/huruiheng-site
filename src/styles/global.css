@@ -1,4 +1,5 @@
-/* 顺序不可调换：tokens 定义变量 → base 重置 → components 组件 */
+/* 顺序不可调换：字体 → tokens 定义变量 → base 重置 → components 组件 */
+@import './fonts-noto-serif.css';
 @import './tokens.css';
 @import './base.css';
 @import './components.css';

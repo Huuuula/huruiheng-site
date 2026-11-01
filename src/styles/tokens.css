@@ -1,54 +1,58 @@
 /* ============================================================
-   设计令牌 · Anthropic 骨架 + 深蓝主色
+   设计令牌 · 暖纸 + 墨色 + 陶土
    ------------------------------------------------------------
-   取值来源（不是凭感觉）：
-   - anthropic.com 生产 CSS 的颜色频次统计
-   - 首页真实计算样式（body 背景 rgb(250,249,245)、h1 衬线 400 字重）
-   - 开源逆向工程 Claude-Design-System 的设计要点
+   取值来源：
+   - anthropic.com 生产 CSS 的实取值（抓取其 _next/static/chunks/*.css）：
+     纸底 #faf9f5、象牙 #f0eee6、墨 #141413、次级 #3d3d3a、
+     弱化 #5e5d59、最弱 #87867f、发丝线 #d1cfc5、陶土 #d97757
+   - 其字阶是 base → desktop 的流体区间：48→80、40→71、32→61、
+     30→48、25→36、22→28；标题行高 120–125%，正文 145–154%
 
-   这一版纠正上一版的三个误判：
-   1. 底色不该是 #f0eee6。Anthropic 用的是 #faf9f5 —— 更亮、更像纸。
-   2. 圆角不该收到 4-8px。它是柔的：按钮全胶囊 999px、卡片 20-24px。
-   3. 标题不该加粗。衬线 400 字重 + 负字距才是那个味道，加粗就变成杂志封面。
-   4. 主色从陶土橙换成深蓝。暖纸底 + 墨蓝，是印刷品的颜色关系。
+   与上一版的差别：
+   1. 主色从墨蓝换回陶土。深蓝配暖纸是「学术印刷品」，陶土配暖纸才是
+      Anthropic 的温度；标题也不再单独染蓝，回到墨色，层级靠字号和留白。
+   2. 暗色从深蓝底换成暖墨底 #141413。冷蓝底会让纸感的文字发灰。
+   3. 中文标题不再套负字距。负字距是拉丁文的排法，汉字收紧会撞笔画，
+      这里只留 -0.012em 的心理暗示量。
    ============================================================ */
 
 :root {
   /* ---------- 颜色：暖纸中性系 ----------
      每个灰都带一点黄褐底，没有一个是纯冷灰。
-     这正是 Anthropic 看起来「有人味」的原因。 */
+     这正是这套配色看起来「有人味」的原因。 */
   --color-bg: #faf9f5;            /* 画布：暖纸白 */
-  --color-bg-subtle: #f4f2ea;     /* 次级面：输入框、表头、代码块 */
+  --color-bg-subtle: #f5f3ec;     /* 次级面：输入框、表头、代码块 */
   --color-surface: #f0eee6;       /* 卡片/面板：比画布深一档，靠明度分层 */
-  --color-surface-hover: #e8e5da; /* 卡片悬停：再深一点，不用阴影 */
-  --color-surface-raised: #ffffff;/* 浮层：模态框、下拉 */
+  --color-surface-hover: #e9e6dc; /* 卡片悬停：再深一点，不用阴影 */
+  --color-surface-raised: #fffefb;/* 浮层：模态框、下拉 */
 
-  --color-heading: #0f2740;       /* 标题专用：深蓝，但不是深色带的那个深 */
+  --color-heading: #141413;       /* 标题与正文同墨色，不另设色相 */
   --color-on-primary: #faf9f5;    /* 主按钮上的文字 */
 
-  --color-ink: #141413;           /* 正文，16.3:1 */
+  --color-ink: #141413;           /* 正文，17.5:1 */
   --color-ink-soft: #3d3d3a;      /* 次级正文，11.2:1 */
-  --color-muted: #5e5d59;         /* 说明文字，6.9:1 */
+  --color-muted: #5e5d59;         /* 说明文字，6.3:1 */
   --color-faint: #87867f;         /* 装饰性标记，不承载关键信息 */
 
   /* 边框：半透明墨色细线，而不是实心灰。
      细线压在暖底上仍然是暖的，实心灰会让画面发脏。 */
-  --color-border: rgba(20, 20, 19, 0.12);
-  --color-border-strong: rgba(20, 20, 19, 0.22);
+  --color-border: rgba(20, 20, 19, 0.13);
+  --color-border-strong: rgba(20, 20, 19, 0.24);
   --color-border-soft: rgba(20, 20, 19, 0.07);
 
-  /* ---------- 主色：墨蓝 ----------
-     不是科技蓝。带灰、偏墨，压在暖纸上有印刷油墨的沉。
-     primary 用于主按钮、链接、焦点环、选中态。 */
-  --color-primary: #1a4066;       /* 主色，墨蓝，8.6:1 on 暖纸 */
-  --color-primary-hover: #23527e; /* 悬停提亮 */
-  --color-primary-deep: #0f2740;  /* 满幅深色带、页脚 */
-  --color-primary-mid: #2f5f8c;   /* 次级强调、图标 */
-  --color-primary-soft: #e6edf4;  /* 浅蓝底：选中行、标签、提示块 */
-  --color-primary-ink: #15324f;   /* 浅蓝底上的文字 */
+  /* ---------- 主色：陶土 ----------
+     不是饱和的橙，是烧过的陶土。4.80:1 on 暖纸，正文级可读，
+     所以正文里的链接、按钮底色都能用它，不用另造一个深色版。
+     accent-bright 只做装饰（下划线、标记点、选中条），不承载文字。 */
+  --color-primary: #b5502f;       /* 主色，陶土，4.80:1 */
+  --color-primary-hover: #a8472a; /* 悬停压深 */
+  --color-primary-deep: #141413;  /* 满幅深色带、页脚：直接用墨色 */
+  --color-primary-mid: #b5502f;   /* 次级强调、图标 */
+  --color-primary-soft: #f4e7df;  /* 浅陶土底：选中行、标签、提示块 */
+  --color-primary-ink: #8f3f24;   /* 浅陶土底上的文字，6.9:1 */
+  --color-accent-bright: #d97757; /* 装饰用亮陶土，2.96:1，禁用于文字 */
 
-  /* 兼容层：旧代码里的 --color-accent 全部映射到主色。
-     这样不用改几百处引用，橙色令牌一次性消失。 */
+  /* 兼容层：旧代码里的 --color-accent 全部映射到主色。 */
   --color-accent: var(--color-primary);
   --color-accent-hover: var(--color-primary-hover);
   --color-accent-soft: var(--color-primary-soft);
@@ -62,18 +66,19 @@
   --color-danger: #a8392c;
   --color-danger-soft: #f7e6e3;
 
-  --color-overlay: rgba(14, 35, 54, 0.34);
+  --color-overlay: rgba(20, 20, 19, 0.36);
 
-  /* 深蓝带上的反色文字 */
+  /* 深色带上的反色文字 */
   --color-on-deep: #faf9f5;
   --color-on-deep-muted: rgba(250, 249, 245, 0.72);
-  --color-on-deep-border: rgba(250, 249, 245, 0.18);
+  --color-on-deep-border: rgba(250, 249, 245, 0.16);
 
   /* ---------- 字体 ----------
-     标题衬线，且是 400 字重 —— 靠字号建立层级，不靠加粗。
-     正文无衬线：中文正文用衬线在 17px 会糊，这是中文排版的现实。 */
-  --font-serif: "Source Serif 4", "Songti SC", "Noto Serif CJK SC",
-    "Source Han Serif SC", Georgia, serif;
+     标题：拉丁走 Source Serif 4，汉字走自托管的思源宋体（按 unicode-range
+     分片，浏览器只取用到的那几片），三平台字形一致。
+     正文无衬线：中文正文用宋体在 17px 会糊，这是中文排版的现实。 */
+  --font-serif: "Source Serif 4", "Noto Serif SC", "Songti SC",
+    "Noto Serif CJK SC", "Source Han Serif SC", Georgia, serif;
   --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
     "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC",
     sans-serif;
@@ -81,32 +86,34 @@
     "Liberation Mono", monospace;
 
   /* ---------- 字阶 ----------
-     相比上一版整体放大：hero 5.2rem、h2 2.2rem、lead 1.375rem。
-     Anthropic 的从容感一半来自「字够大、行够宽」。 */
-  --fs-hero: clamp(2.75rem, 7vw, 5.2rem);
-  --fs-h1: clamp(2rem, 4.4vw, 3.1rem);
-  --fs-h2: clamp(1.55rem, 2.6vw, 2.15rem);
+     对齐 Anthropic 的流体区间：hero 上到 5rem（80px），
+     内页 h1 约 3rem，正文 17px 是中文屏幕阅读的下限。 */
+  --fs-hero: clamp(2.75rem, 6.6vw, 5rem);
+  --fs-h1: clamp(2rem, 4.2vw, 3rem);
+  --fs-h2: clamp(1.5rem, 2.4vw, 2rem);
   --fs-h3: 1.25rem;
-  --fs-lead: clamp(1.125rem, 1.55vw, 1.375rem);
-  --fs-body: 1.0625rem;           /* 17px：中文正文下限 */
+  --fs-lead: clamp(1.125rem, 1.5vw, 1.3125rem);
+  --fs-body: 1.0625rem;           /* 17px */
   --fs-small: 0.9375rem;          /* 15px */
   --fs-micro: 0.8125rem;          /* 13px */
   --fs-nano: 0.75rem;             /* 12px：仅大写 eyebrow */
 
-  --lh-tight: 1.1;
-  --lh-snug: 1.32;
-  --lh-body: 1.78;
+  /* 行高：汉字是满格方块，比拉丁文更需要行距。
+     标题 1.16 是汉字不被裁切的下限，正文 1.8 是长文的舒适区。 */
+  --lh-tight: 1.16;
+  --lh-snug: 1.4;
+  --lh-body: 1.8;
 
   /* 字重：大标题用 400，这是这个风格最反直觉、也最关键的一点 */
   --fw-regular: 400;
   --fw-medium: 500;
   --fw-semibold: 600;
 
-  /* 字距：大标题收紧，小标签放开 */
-  --ls-tight: -0.021em;
-  --ls-tighter: -0.032em;
+  /* 字距：中文标题只能微收；小标签放开，像印刷页眉 */
+  --ls-tight: -0.012em;
+  --ls-tighter: -0.018em;
   --ls-normal: 0;
-  --ls-wide: 0.08em;
+  --ls-wide: 0.12em;
 
   /* ---------- 间距 ---------- */
   --sp-1: 4px;
@@ -133,10 +140,10 @@
 
   /* ---------- 投影 ----------
      只在浮层用，且极轻。卡片一律不用阴影。 */
-  --shadow-xs: 0 1px 2px rgba(14, 35, 54, 0.04);
-  --shadow-sm: 0 2px 8px rgba(14, 35, 54, 0.06);
-  --shadow-md: 0 8px 24px rgba(14, 35, 54, 0.08);
-  --shadow-lg: 0 20px 48px rgba(14, 35, 54, 0.12);
+  --shadow-xs: 0 1px 2px rgba(20, 20, 19, 0.04);
+  --shadow-sm: 0 2px 8px rgba(20, 20, 19, 0.06);
+  --shadow-md: 0 8px 24px rgba(20, 20, 19, 0.08);
+  --shadow-lg: 0 20px 48px rgba(20, 20, 19, 0.12);
 
   /* ---------- 布局 ---------- */
   --container: 1200px;
@@ -156,34 +163,35 @@
   --dur-slow: 420ms;
 }
 
-/* 暗色：深蓝墨底，不是中性黑。
-   纯黑会让深蓝主色失去温度，也会让暖纸的文字发灰。 */
+/* 暗色：暖墨底，不是中性黑，也不是冷蓝。
+   冷蓝会让纸感的文字发灰，也会让陶土变脏。 */
 [data-theme="dark"] {
-  --color-bg: #0d1a26;
-  --color-bg-subtle: #122230;
-  --color-surface: #152838;
-  --color-surface-hover: #1b3042;
-  --color-surface-raised: #1a2e3f;
+  --color-bg: #141413;
+  --color-bg-subtle: #1b1b19;
+  --color-surface: #1f1f1d;
+  --color-surface-hover: #262624;
+  --color-surface-raised: #232321;
 
-  --color-heading: #dfe8f1;
-  --color-on-primary: #08151f;
+  --color-heading: #f2f0e8;
+  --color-on-primary: #1a0f0a;
 
-  --color-ink: #f1efe7;
-  --color-ink-soft: #d8d5ca;
-  --color-muted: #a3a099;
-  --color-faint: #7d7a73;
+  --color-ink: #f0eee6;
+  --color-ink-soft: #d6d3c9;
+  --color-muted: #a5a29a;
+  --color-faint: #807d76;
 
-  --color-border: rgba(241, 239, 231, 0.13);
-  --color-border-strong: rgba(241, 239, 231, 0.24);
-  --color-border-soft: rgba(241, 239, 231, 0.07);
+  --color-border: rgba(240, 238, 230, 0.14);
+  --color-border-strong: rgba(240, 238, 230, 0.26);
+  --color-border-soft: rgba(240, 238, 230, 0.07);
 
-  /* 深底上主色必须提亮，否则和背景糊在一起 */
-  --color-primary: #7aa8cd;
-  --color-primary-hover: #95bcd9;
-  --color-primary-deep: #071420;
-  --color-primary-mid: #5d8fb8;
-  --color-primary-soft: #17293a;
-  --color-primary-ink: #a9cbe4;
+  /* 深底上主色必须提亮，否则和背景糊在一起：7.42:1 */
+  --color-primary: #e2906f;
+  --color-primary-hover: #eda383;
+  --color-primary-deep: #0f0f0e;
+  --color-primary-mid: #d97757;
+  --color-primary-soft: #2a1d17;
+  --color-primary-ink: #edb49c;
+  --color-accent-bright: #d97757;
 
   --color-success: #7fae86;
   --color-success-soft: #16281d;
@@ -193,9 +201,9 @@
   --color-danger-soft: #2c1a18;
 
   --color-overlay: rgba(0, 0, 0, 0.62);
-  --color-on-deep: #f1efe7;
-  --color-on-deep-muted: rgba(241, 239, 231, 0.7);
-  --color-on-deep-border: rgba(241, 239, 231, 0.16);
+  --color-on-deep: #f0eee6;
+  --color-on-deep-muted: rgba(240, 238, 230, 0.7);
+  --color-on-deep-border: rgba(240, 238, 230, 0.16);
 
   --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.3);
   --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.34);

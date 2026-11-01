@@ -79,8 +79,8 @@ body {
     color var(--dur-base) var(--ease-soft);
 }
 
-/* 标题：衬线、400 字重、字距收紧。层级靠字号和字面宽度，不靠加粗。
-   颜色统一用深蓝，让主色贯穿全站标题，正文留近黑保证长文可读。 */
+/* 标题：衬线、400 字重、轻微收紧。层级靠字号和字面宽度，不靠加粗。
+   标题与正文同为墨色，色相交给陶土只做点缀，不做主角。 */
 h1,
 h2,
 h3,
@@ -96,7 +96,7 @@ h4 {
 h1 {
   font-size: var(--fs-h1);
   line-height: var(--lh-tight);
-  letter-spacing: -0.02em;
+  letter-spacing: -0.008em;
 }
 
 h2 {
@@ -116,8 +116,11 @@ strong {
   color: var(--color-ink);
 }
 
+/* 汉字没有真正的斜体，浏览器合成出来的倾斜会歪笔画。
+   中文语境里的强调靠字重和位置，不靠斜。 */
 em {
-  font-style: italic;
+  font-style: normal;
+  font-weight: 500;
 }
 
 /* 正文链接：默认只有颜色，悬停才出下划线。
@@ -148,11 +151,15 @@ pre {
 }
 
 code {
-  padding: 0.15em 0.4em;
+  padding: 0.12em 0.36em;
   background: var(--color-bg-subtle);
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--color-border-soft);
   border-radius: 6px;
   color: var(--color-ink);
+  /* 行内代码跨行时，默认只给首尾片段加边框，中间会断成锯齿。
+     clone 让每个片段都有完整圆角与边框。 */
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
 }
 
 pre {
@@ -199,6 +206,12 @@ svg {
   max-width: 100%;
   height: auto;
   display: block;
+}
+
+/* display:block 会盖掉 UA 的 [hidden]，日夜两个图标会同时出现。
+   这条必须留在 svg 规则之后。 */
+[hidden] {
+  display: none !important;
 }
 
 /* ---------- 焦点：键盘用户必须看得见 ---------- */

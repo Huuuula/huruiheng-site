@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "astro dev",
     "index": "node scripts/build-index.mjs",
-    "prebuild": "node scripts/build-index.mjs && node scripts/build-sitemap.mjs",
+    "prebuild": "node scripts/subset-fonts.mjs && node scripts/build-index.mjs && node scripts/build-sitemap.mjs",
     "build": "astro build",
     "preview": "astro preview",
     "check": "astro check"
@@ -15,6 +15,7 @@
     "astro": "^5.13.0"
   },
   "devDependencies": {
+    "subset-font": "^2.9.0",
     "wrangler": "^4.156.0"
   }
 }
