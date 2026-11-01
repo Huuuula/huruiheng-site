@@ -1,0 +1,59 @@
+name: 构建并部署
+
+# 为什么用 GitHub Actions 而不是 Cloudflare 的「Connect to Git」：
+# 现有的 huruiheng 项目是 Direct Upload 类型，Cloudflare 不支持把已有项目
+# 原地转成 Git 集成，只能新建一个项目 —— 那会把 pages.dev 域名和自定义域名
+# 一起换掉。用 wrangler 从 Actions 部署，项目、域名、部署历史全部保持不变，
+# 而且 Functions（functions/ 目录）照样会被一起打包。
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: 安装依赖
+        run: pnpm install --frozen-lockfile
+
+      # 必须走 npm/pnpm run build：prebuild 里挂着字体子集化、
+      # 搜索索引和 sitemap 生成，直接 astro build 会全部跳过。
+      - name: 构建
+        run: pnpm build
+
+      - name: 部署到 Cloudflare Pages
+        run: npx wrangler pages deploy dist --project-name huruiheng --branch main --commit-dirty=true
+
+      - name: 线上复检
+        run: |
+          set -e
+          base=https://huruiheng.pages.dev
+          for path in / /writing/ /projects/ /tags/ /about/ /feed.xml /sitemap.xml; do
+            code=$(curl -s -o /dev/null -w "%{http_code}" --retry 5 --retry-delay 3 "$base$path")
+            echo "$path → $code"
+            [ "$code" = "200" ] || exit 1
+          done
+          curl -sf "$base/api/search?q=DNS" | grep -q '"results"' && echo "/api/search → ok"

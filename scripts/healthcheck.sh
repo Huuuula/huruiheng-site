@@ -24,7 +24,10 @@ check() { # path 期望码 [关键字]
     FAIL=$((FAIL+1)); FAILED+=("$path")
     return
   fi
-  if [[ -n "$kw" ]] && ! printf '%s' "$out" | grep -qF -- "$kw"; then
+  # 这里不能用 printf | grep -q：grep 命中即退出，printf 会收到 SIGPIPE，
+  # 配合 set -o pipefail 会把「找到了」判成失败（页面越大越容易复现）。
+  # 用 bash 自带的模式匹配，既没有管道也没有子进程。
+  if [[ -n "$kw" ]] && [[ "$out" != *"$kw"* ]]; then
     printf '  \033[31mFAIL\033[0m %-46s 缺少关键字「%s」\n' "$path" "$kw"
     FAIL=$((FAIL+1)); FAILED+=("$path")
     return
