@@ -1,0 +1,22 @@
+---
+/**
+ * 404。Astro 输出 dist/404.html，Cloudflare Pages 自动接管未匹配路径。
+ */
+import Base from '../layouts/Base.astro';
+---
+
+<Base title="页面不存在">
+  <div class="wrap">
+    <div class="notfound">
+      <p class="notfound__code">404</p>
+      <h1 class="notfound__title">这一页不在了</h1>
+      <p class="notfound__text">
+        可能是链接写错了，也可能是我把文章挪了位置。手工编号的站，偶尔会这样。
+      </p>
+      <div class="notfound__actions">
+        <a class="btn btn--primary" href="/">回首页</a>
+        <a class="btn btn--ghost" href="/writing/">看全部文章</a>
+      </div>
+    </div>
+  </div>
+</Base>

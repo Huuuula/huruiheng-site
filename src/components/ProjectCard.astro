@@ -1,0 +1,32 @@
+---
+/**
+ * 项目卡片。标记对应原主题 template-parts/project-card.php。
+ */
+export interface Props {
+  /** 编号，不含「No.」前缀，如 01 */
+  index: string;
+  title: string;
+  desc: string;
+  chips: string[];
+  /** 状态文案，已完成 / 维护中 */
+  status: string;
+  done: boolean;
+  href: string;
+}
+
+const { index, title, desc, chips, status, done, href } = Astro.props;
+---
+
+<a class="project-card" href={href}>
+  <div class="project-card__head">
+    <span class="project-card__index">No. {index}</span>
+    <span class:list={['status', done ? 'status--done' : 'status--active']}>{status}</span>
+  </div>
+  <h3 class="project-card__title">{title}</h3>
+  <p class="project-card__desc">{desc}</p>
+  {chips.length > 0 && (
+    <div class="chips">
+      {chips.map((chip) => <span class="chip">{chip}</span>)}
+    </div>
+  )}
+</a>

@@ -1,0 +1,2 @@
+# 原站 feed 地址是 /feed/，Cloudflare Pages 内部转发到构建出的 /feed.xml
+/feed/ /feed.xml 200

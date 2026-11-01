@@ -1,0 +1,32 @@
+---
+/**
+ * 关于 /about/
+ * 对应原主题 page.php：标题 + 60 字导语，正文进 .prose，标题锚点由 rehype 插件生成。
+ */
+import Base from '../layouts/Base.astro';
+import { getEntry, render } from 'astro:content';
+import { clampChars, plainSummary } from '../lib/text';
+
+const page = await getEntry('pages', 'about');
+if (!page) throw new Error('缺少 pages/about.md');
+
+const { Content } = await render(page);
+const text = plainSummary(page.body ?? '');
+const lead = clampChars(text, 60);
+const description = clampChars(text, 50);
+---
+
+<Base title={page.data.title} description={description} ogType="article">
+  <div class="wrap">
+    <header class="page-head">
+      <h1>{page.data.title}</h1>
+      {lead && <p class="page-head__lead">{lead}</p>}
+    </header>
+  </div>
+
+  <div class="wrap">
+    <article class="prose">
+      <Content />
+    </article>
+  </div>
+</Base>

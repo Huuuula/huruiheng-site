@@ -1,0 +1,54 @@
+---
+/**
+ * 标签总览 /tags/
+ * 对应原主题 page-tags.php：按文章数降序，同数时沿用原站 term 顺序。
+ */
+import Base from '../../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+import { tagSlug } from '../../lib/format';
+
+/**
+ * 原站 count 相同的标签按 term_id 升序，term_id 来自迁移前的导入顺序，
+ * 内容里没有这个字段，这里显式固定；将来新增的标签回落到名称排序。
+ */
+const TAG_ORDER = ['cloudflare', '设计', '排版', '性能', '托管', '成本', 'dns', '排错'];
+
+const counts = new Map<string, number>();
+for (const post of await getCollection('posts')) {
+  for (const tag of post.data.tags) {
+    counts.set(tag, (counts.get(tag) ?? 0) + 1);
+  }
+}
+
+const rank = (name: string) => {
+  const i = TAG_ORDER.indexOf(name);
+  return i === -1 ? TAG_ORDER.length : i;
+};
+
+const tags = [...counts.entries()]
+  .map(([name, count]) => ({ name, count }))
+  .sort((a, b) => b.count - a.count || rank(a.name) - rank(b.name) || a.name.localeCompare(b.name, 'zh'));
+---
+
+<Base title="标签" description="">
+  <div class="wrap">
+    <header class="page-head">
+      <p class="page-head__label">Tags · {tags.length} 个</p>
+      <h1>标签</h1>
+      <p class="page-head__lead">按出现次数排序。点进去是同标签的全部文章。</p>
+    </header>
+
+    {tags.length > 0 ? (
+      <div class="tag-cloud">
+        {tags.map((tag) => (
+          <a class="tag-cloud__item" href={`/tags/${tagSlug(tag.name)}/`}>
+            <span class="tag-cloud__name">{tag.name}</span>
+            <span class="tag-cloud__count">{tag.count}</span>
+          </a>
+        ))}
+      </div>
+    ) : (
+      <p class="empty">还没有标签。</p>
+    )}
+  </div>
+</Base>

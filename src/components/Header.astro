@@ -1,0 +1,78 @@
+---
+/**
+ * 页头。标记逐字对齐 _baseline/html/*.html 的 <header class="site-header">，
+ * 高亮规则对应原主题 header.php 的 is_writing / is_project / is_tags / is_about。
+ */
+import { SITE } from '../lib/site';
+
+const path = Astro.url.pathname;
+
+/** 标签归档（/tags/<slug>/）在原站里算「写作」，只有 /tags/ 本身算「标签」 */
+function isActive(href: string): boolean {
+  if (href === '/tags/') return path === '/tags/';
+  if (href === '/writing/') {
+    return path.startsWith('/writing/') || (path.startsWith('/tags/') && path !== '/tags/');
+  }
+  return path.startsWith(href);
+}
+---
+
+<header class="site-header">
+  <div class="wrap site-header__inner">
+    <a class="brand" href="/" aria-label="Hu 首页">{SITE.brand}<span class="brand__dot">.</span></a>
+
+    <nav class="nav" aria-label="主导航">
+      {SITE.nav.map((item) => (
+        <a class="nav__link" href={item.href} aria-current={isActive(item.href) ? 'page' : undefined}>{item.label}</a>
+      ))}
+
+      <span class="nav__sep" aria-hidden="true"></span>
+
+      <button class="search-btn" type="button" data-search-open aria-label="搜索文章">
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.6-3.6"></path>
+        </svg>
+        <span>搜索</span>
+        <kbd>⌘K</kbd>
+      </button>
+
+      <button class="icon-btn" type="button" data-theme-toggle aria-label="切换明暗模式">
+        <svg
+          class="theme-icon theme-icon--sun"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+          hidden
+        >
+          <circle cx="12" cy="12" r="4.5"></circle><path d="M12 2v2"></path><path d="M12 20v2"></path><path
+            d="M4.93 4.93l1.41 1.41"></path><path d="M17.66 17.66l1.41 1.41"></path><path d="M2 12h2"></path><path
+            d="M20 12h2"></path><path d="M4.93 19.07l1.41-1.41"></path><path d="M17.66 6.34l1.41-1.41"></path>
+        </svg>
+        <svg
+          class="theme-icon theme-icon--moon"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M20.5 13.2A8.5 8.5 0 1 1 10.8 3.5a6.8 6.8 0 0 0 9.7 9.7Z"></path>
+        </svg>
+      </button>
+    </nav>
+  </div>
+</header>

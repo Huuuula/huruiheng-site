@@ -1,0 +1,53 @@
+---
+/**
+ * 写作列表 /writing/
+ * 对应原主题 page-writing.php：按年份分组，日期倒序。
+ */
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import PostRow from '../../components/PostRow.astro';
+import { padNo, yearOf } from '../../lib/format';
+import { excerptOf, minutesOf } from '../../lib/text';
+
+const posts = (await getCollection('posts')).sort(
+  (a, b) => b.data.date.valueOf() - a.data.date.valueOf()
+);
+
+const groups: { year: string; items: typeof posts }[] = [];
+for (const post of posts) {
+  const year = yearOf(post.data.date);
+  const last = groups[groups.length - 1];
+  if (last && last.year === year) last.items.push(post);
+  else groups.push({ year, items: [post] });
+}
+---
+
+<Base title="写作" description="">
+  <div class="wrap">
+    <header class="page-head">
+      <p class="page-head__label">Archive · {posts.length} 篇</p>
+      <h1>写作</h1>
+      <p class="page-head__lead">
+        按年份归档，编号固定。补发的旧文会插进对应位置，已有编号不动。
+      </p>
+    </header>
+
+    {groups.map((group) => (
+      <div class="year-group">
+        <div class="year-label">{group.year}</div>
+        <div class="post-list">
+          {group.items.map((post) => (
+            <PostRow
+              no={padNo(post.data.no, posts.indexOf(post) + 1)}
+              title={post.data.title}
+              excerpt={excerptOf(post.data, post.body, 60)}
+              date={post.data.date}
+              reading={minutesOf(post.body)}
+              href={`/writing/${post.id}/`}
+            />
+          ))}
+        </div>
+      </div>
+    ))}
+  </div>
+</Base>

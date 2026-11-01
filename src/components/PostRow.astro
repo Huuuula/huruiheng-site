@@ -1,0 +1,32 @@
+---
+/**
+ * 文章行（首页 / 列表页共用）。
+ * 标记对应原主题 template-parts/post-row.php。
+ */
+import { formatDate, isoDateTime } from '../lib/format';
+
+export interface Props {
+  /** 编号，不含「No.」前缀，如 003 */
+  no: string;
+  title: string;
+  excerpt?: string;
+  date: Date;
+  /** 阅读时间，分钟 */
+  reading: number;
+  href: string;
+}
+
+const { no, title, excerpt = '', date, reading, href } = Astro.props;
+---
+
+<a class="post-row reveal" href={href}>
+  <span class="post-row__no">No. {no}</span>
+  <span class="post-row__body">
+    <span class="post-row__title">{title}</span>
+    {excerpt && <span class="post-row__excerpt">{excerpt}</span>}
+  </span>
+  <span class="post-row__meta">
+    <time datetime={isoDateTime(date)}>{formatDate(date)}</time>
+    <span>约 {reading} 分钟</span>
+  </span>
+</a>

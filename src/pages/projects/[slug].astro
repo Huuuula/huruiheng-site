@@ -1,0 +1,68 @@
+---
+/**
+ * 项目详情 /projects/<slug>/
+ * 对应原主题 single-project.php：编号 + 年份 · 状态 · 技术栈，正文进 .prose，
+ * 底部按 link 决定是否出现「访问 →」，始终有「← 返回项目」。
+ */
+import Base from '../../layouts/Base.astro';
+import { getCollection, render, type CollectionEntry } from 'astro:content';
+import { clampChars, plainSummary } from '../../lib/text';
+
+export async function getStaticPaths() {
+  const projects = await getCollection('projects');
+  return projects.map((project) => ({
+    params: { slug: project.id },
+    props: { project },
+  }));
+}
+
+interface Props {
+  project: CollectionEntry<'projects'>;
+}
+
+const { project } = Astro.props;
+const { data, body } = project;
+const { Content } = await render(project);
+
+const status = data.status || '进行中';
+const isDone = status === '已完成';
+const no = data.no?.trim() || '';
+const description = clampChars(plainSummary(body ?? ''), 50);
+---
+
+<Base title={data.title} description={description} ogType="article">
+  <div class="wrap">
+    <header class="page-head">
+      <p class="page-head__label">Project · No. {no}</p>
+      <h1>{data.title}</h1>
+      <div class="article-meta">
+        {data.period && (
+          <>
+            <span>{data.period}</span>
+            <span class="dot"></span>
+          </>
+        )}
+        <span class:list={['status', isDone ? 'status--done' : 'status--active']}>{status}</span>
+        {data.stack.length > 0 && (
+          <span class="chips">
+            {data.stack.map((item) => <span class="chip">{item}</span>)}
+          </span>
+        )}
+      </div>
+      {data.summary && <p class="page-head__lead">{data.summary}</p>}
+    </header>
+
+    <div class="prose">
+      <Content />
+    </div>
+
+    <footer class="article-foot">
+      <div class="tag-row">
+        {data.link && (
+          <a class="btn btn--primary" href={data.link} target="_blank" rel="noopener">访问 →</a>
+        )}
+        <a class="btn btn--ghost" href="/projects/">← 返回项目</a>
+      </div>
+    </footer>
+  </div>
+</Base>

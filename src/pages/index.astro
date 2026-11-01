@@ -1,0 +1,108 @@
+---
+/**
+ * 首页 /
+ * 对应原主题 front-page.php。文案逐字取自 _baseline/html/home.html。
+ */
+import { getCollection } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import PostRow from '../components/PostRow.astro';
+import ProjectCard from '../components/ProjectCard.astro';
+import { padNo } from '../lib/format';
+import { excerptOf, minutesOf } from '../lib/text';
+
+const posts = (await getCollection('posts')).sort(
+  (a, b) => b.data.date.valueOf() - a.data.date.valueOf()
+);
+const projects = (await getCollection('projects')).sort((a, b) =>
+  (a.data.no ?? '').localeCompare(b.data.no ?? '')
+);
+
+const latest = posts.slice(0, 3);
+const year = new Date().getUTCFullYear();
+---
+
+<Base>
+  <section class="wrap">
+    <div class="hero">
+      <div class="hero__body">
+        <p class="hero__badge">{year} · 不定期更新</p>
+        <h1>写作与<em>项目</em></h1>
+        <p class="hero__lead">
+          我是 Hu，写代码的人。这里放着两类东西：想清楚了写下来的，和做出来能跑的。没有广告，没有统计，也没有评论区。
+        </p>
+        <div class="hero__actions">
+          <a class="btn btn--primary" href="/writing/">
+            读文章
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M5 12h14"></path><path d="m13 6 6 6-6 6"></path>
+            </svg>
+          </a>
+          <a class="btn btn--ghost" href="/projects/">看项目</a>
+        </div>
+      </div>
+
+      <div class="hero__aside" aria-hidden="true">
+        <span>Selected</span>
+        <span>Notes · {year}</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap section">
+    <div class="section-head">
+      <h2>最新写作</h2>
+      <a class="section-head__more" href="/writing/">
+        全部 {posts.length} 篇 →
+      </a>
+    </div>
+
+    <div class="post-list">
+      {latest.map((post, i) => (
+        <PostRow
+          no={padNo(post.data.no, i + 1)}
+          title={post.data.title}
+          excerpt={excerptOf(post.data, post.body, 60)}
+          date={post.data.date}
+          reading={minutesOf(post.body)}
+          href={`/writing/${post.id}/`}
+        />
+      ))}
+    </div>
+  </section>
+
+  <section class="wrap section">
+    <div class="section-head">
+      <h2>项目</h2>
+      <a class="section-head__more" href="/projects/">
+        全部 {projects.length} 个 →
+      </a>
+    </div>
+
+    <div class="card-grid card-grid--three">
+      {projects.map((project) => (
+        <ProjectCard
+          index={project.data.no ?? ''}
+          title={project.data.title}
+          desc={project.data.summary}
+          chips={project.data.stack}
+          status={project.data.status}
+          done={project.data.status === '已完成'}
+          href={`/projects/${project.id}/`}
+        />
+      ))}
+    </div>
+  </section>
+
+  <section class="wrap section">
+    <div class="band-deep">
+      <div>
+        <p class="band-deep__label">About</p>
+        <h2 class="band-deep__title">一个不追热点的地方</h2>
+        <p class="band-deep__text">
+          这里没有推荐算法，没有阅读时长统计，也没有评论。写完就发，发完就不改。如果你想知道这些字是谁写的、为什么这么排，去看关于页。
+        </p>
+      </div>
+      <a class="btn btn--on-deep" href="/about/">关于我</a>
+    </div>
+  </section>
+</Base>

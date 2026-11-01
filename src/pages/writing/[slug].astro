@@ -1,0 +1,144 @@
+---
+/**
+ * 文章详情 /writing/<slug>/
+ * 对应原主题 single.php：标题 → 正文 + 目录 → 标签 + 相邻文章。
+ * 正文 h2/h3 的 id 由 astro.config.mjs 里的 rehype 插件补，规则与 headingId() 相同。
+ */
+import { getCollection, render } from 'astro:content';
+import type { CollectionEntry } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import { formatDate, isoDateTime, headingId, padNo, tagSlug } from '../../lib/format';
+import { excerptOf, minutesOf } from '../../lib/text';
+
+export async function getStaticPaths() {
+  const posts = (await getCollection('posts')).sort(
+    (a, b) => b.data.date.valueOf() - a.data.date.valueOf()
+  );
+
+  return posts.map((entry, i) => ({
+    params: { slug: entry.id },
+    props: {
+      entry,
+      older: posts[i + 1] ?? null,
+      newer: posts[i - 1] ?? null,
+      index: i,
+    },
+  }));
+}
+
+interface Props {
+  entry: CollectionEntry<'posts'>;
+  older: CollectionEntry<'posts'> | null;
+  newer: CollectionEntry<'posts'> | null;
+  index: number;
+}
+
+const { entry, older, newer, index } = Astro.props;
+const { Content } = await render(entry);
+
+/** 逐行扫 markdown 生成目录，跳过代码块；顺序与正文一致 */
+const used = new Set<string>();
+const headings: { level: number; text: string; id: string }[] = [];
+let inFence = false;
+
+for (const line of (entry.body ?? '').split('\n')) {
+  if (/^\s*```/.test(line)) {
+    inFence = !inFence;
+    continue;
+  }
+  if (inFence) continue;
+
+  const match = /^(#{2,3})\s+(.+?)\s*$/.exec(line);
+  if (!match) continue;
+
+  const text = match[2]
+    .replace(/`([^`]*)`/g, '$1')
+    .replace(/\*\*([^*]+)\*\*/g, '$1')
+    .replace(/\*([^*]+)\*/g, '$1')
+    .replace(/\[([^\]]*)\]\([^)]*\)/g, '$1');
+
+  const base = headingId(text);
+  let id = base;
+  let n = 1;
+  while (used.has(id)) id = `${base}-${++n}`;
+  used.add(id);
+
+  headings.push({ level: match[1].length, text, id });
+}
+
+const lead = excerptOf(entry.data, entry.body, 80);
+const minutes = minutesOf(entry.body);
+const no = padNo(entry.data.no, index + 1);
+---
+
+<Base
+  title={entry.data.title}
+  description={lead}
+  ogType="article"
+  showProgress={true}
+>
+  <div class="wrap">
+    <header class="article-head">
+      <h1>{entry.data.title}</h1>
+      <div class="article-meta">
+        <time datetime={isoDateTime(entry.data.date)}>{formatDate(entry.data.date)}</time>
+        <span class="dot"></span>
+        <span>No. {no}</span>
+        <span class="dot"></span>
+        <span>约 {minutes} 分钟</span>
+      </div>
+      {lead && <p class="article-lead">{lead}</p>}
+    </header>
+  </div>
+
+  <div class="wrap article-wrap">
+    <article class="prose prose--dropcap">
+      <Content />
+    </article>
+
+    {headings.length >= 3 && (
+      <nav class="toc" data-toc aria-label="本页目录">
+        <p class="toc__title">本页目录</p>
+        <ul>
+          {headings.map((h) => (
+            <li class={h.level === 3 ? 'toc__depth-3' : null}>
+              <a href={`#${h.id}`}>{h.text}</a>
+            </li>
+          ))}
+        </ul>
+      </nav>
+    )}
+  </div>
+
+  <div class="wrap">
+    <footer class="article-foot">
+      {entry.data.tags.length > 0 && (
+        <div class="tag-row">
+          <span class="tag-row__label">Tags</span>
+          {entry.data.tags.map((tag) => (
+            <a class="chip" href={`/tags/${tagSlug(tag)}/`}>{tag}</a>
+          ))}
+        </div>
+      )}
+
+      <nav class="post-nav" aria-label="相邻文章">
+        {older ? (
+          <a href={`/writing/${older.id}/`}>
+            <span class="post-nav__label">← 更早</span>
+            <span class="post-nav__title">{older.data.title}</span>
+          </a>
+        ) : (
+          <span></span>
+        )}
+        {newer ? (
+          <a href={`/writing/${newer.id}/`}>
+            <span class="post-nav__label">更新 →</span>
+            <span class="post-nav__title">{newer.data.title}</span>
+          </a>
+        ) : (
+          <span></span>
+        )}
+      </nav>
+    </footer>
+  </div>
+</Base>

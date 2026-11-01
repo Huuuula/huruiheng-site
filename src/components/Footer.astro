@@ -1,0 +1,43 @@
+---
+/**
+ * 页脚。三列 + base 行，文案照抄 _baseline/html/ 的 <footer class="site-footer">。
+ */
+import { SITE } from '../lib/site';
+
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+  <div class="wrap site-footer__grid">
+    <div>
+      <a class="site-footer__brand" href="/">{SITE.brand}<span class="brand__dot">.</span></a>
+      <p class="site-footer__desc">
+        一个写代码的人的技术刊物。只放两类东西：想清楚了写下来的，和做出来能跑的。
+        不放广告，不装统计，不开评论。
+      </p>
+    </div>
+
+    <div>
+      <h2 class="site-footer__col-title">内容</h2>
+      <div class="site-footer__links">
+        <a href="/writing/">全部文章</a>
+        <a href="/projects/">项目</a>
+        <a href="/tags/">标签</a>
+      </div>
+    </div>
+
+    <div>
+      <h2 class="site-footer__col-title">订阅</h2>
+      <div class="site-footer__links">
+        <a href="/feed/">RSS</a>
+        <a href="mailto:443111553@qq.com">邮件</a>
+        <a href="/about/">关于本站</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap site-footer__base">
+    <span>© {year} {SITE.brand}</span>
+    <span>写于长沙 · 手工编号，不定期更新</span>
+  </div>
+</footer>

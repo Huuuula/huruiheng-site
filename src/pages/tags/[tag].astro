@@ -1,0 +1,54 @@
+---
+/**
+ * 标签归档 /tags/<tag>/
+ * 对应原主题 archive.php 的 is_tag() 分支：Tag · N 篇 + 文章列表。
+ * params.tag 用原始中文：产物目录需为中文，服务器收到百分号编码的请求会解码后再匹配；
+ * 若目录名写成字面 %e6...，解码后就找不到文件（已验证会 404）。
+ */
+import Base from '../../layouts/Base.astro';
+import PostRow from '../../components/PostRow.astro';
+import { getCollection } from 'astro:content';
+import { padNo, tagSlug } from '../../lib/format';
+import { excerptOf, minutesOf } from '../../lib/text';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('posts');
+  const tags = [...new Set(posts.flatMap((post) => post.data.tags))];
+  return tags.map((tag) => ({
+    params: { tag },
+    props: { tag },
+  }));
+}
+
+interface Props {
+  tag: string;
+}
+
+const { tag } = Astro.props;
+
+const posts = (await getCollection('posts'))
+  .filter((post) => post.data.tags.includes(tag))
+  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+---
+
+<Base title={tag}>
+  <div class="wrap">
+    <header class="page-head">
+      <p class="page-head__label">Tag · {posts.length} 篇</p>
+      <h1>{tag}</h1>
+    </header>
+
+    <div class="post-list">
+      {posts.map((post, i) => (
+        <PostRow
+          no={padNo(post.data.no, i + 1)}
+          title={post.data.title}
+          excerpt={excerptOf(post.data, post.body, 60)}
+          date={post.data.date}
+          reading={minutesOf(post.body)}
+          href={`/writing/${post.id}/`}
+        />
+      ))}
+    </div>
+  </div>
+</Base>

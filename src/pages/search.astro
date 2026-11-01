@@ -1,0 +1,103 @@
+---
+/**
+ * 搜索归档页 /search/?q=xxx
+ * 原站是 /?s=xxx（PHP 渲染），静态站没有运行时，改为客户端取 /api/search 渲染。
+ * 视觉结构对齐原站 search.php 的 page-head + post-list。
+ */
+import Base from '../layouts/Base.astro';
+---
+
+<Base title="搜索" description="在 Hu 的写作与项目中搜索关键词">
+  <div class="wrap">
+    <header class="page-head">
+      <p class="page-head__label" id="search-label">Search</p>
+      <h1 id="search-title">搜索</h1>
+      <p class="page-head__lead" id="search-lead">输入关键词开始搜索。</p>
+    </header>
+    <div class="post-list" id="search-results" aria-live="polite"></div>
+  </div>
+</Base>
+
+<script>
+  import { loadIndex, runSearch } from '../scripts/search-core.js';
+
+  const resultsEl = document.getElementById('search-results');
+  const labelEl = document.getElementById('search-label');
+  const titleEl = document.getElementById('search-title');
+  const leadEl = document.getElementById('search-lead');
+
+  const params = new URLSearchParams(window.location.search);
+  const q = (params.get('q') || '').trim();
+
+  /**
+   * 服务端可用就走 /api/search（部署了 Pages Functions 时），
+   * 纯静态托管（拖拽上传）没有该接口，自动降级到构建期索引。
+   * 两种部署方式共用同一份页面代码。
+   */
+  async function query(kw, limit) {
+    try {
+      const res = await fetch('/api/search?limit=' + limit + '&q=' + encodeURIComponent(kw));
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const data = await res.json();
+      return Array.isArray(data.results) ? data.results : [];
+    } catch (e) {
+      const index = await loadIndex();
+      return runSearch(index, kw, limit);
+    }
+  }
+
+  function esc(s) {
+    const d = document.createElement('div');
+    d.textContent = s == null ? '' : String(s);
+    return d.innerHTML;
+  }
+
+  /** "2026-10-28" → "2026.10.28"，与全站日期格式一致 */
+  function fmtDate(s) {
+    const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(s || '');
+    return m ? `${m[1]}.${m[2]}.${m[3]}` : '';
+  }
+
+  function row(item) {
+    const no = item.subtype === 'project' ? '项目' : item.subtype === 'page' ? '页面' : '';
+    return (
+      '<a class="post-row" href="' + esc(item.url) + '">' +
+      (no ? '<span class="post-row__no">' + no + '</span>' : '<span class="post-row__no"></span>') +
+      '<span class="post-row__body">' +
+      '<span class="post-row__title">' + esc(item.title) + '</span>' +
+      '<span class="post-row__excerpt">' + esc(item.excerpt) + '</span>' +
+      '</span>' +
+      '<span class="post-row__meta"><time datetime="' + esc(item.date) + '">' + fmtDate(item.date) + '</time></span>' +
+      '</a>'
+    );
+  }
+
+  function renderEmpty(text) {
+    resultsEl.innerHTML = '<p class="search-empty">' + esc(text) + '</p>';
+  }
+
+  async function run() {
+    if (!q) {
+      renderEmpty('输入关键词开始搜索。');
+      return;
+    }
+    labelEl.textContent = 'Search';
+    titleEl.textContent = '「' + q + '」';
+    leadEl.textContent = '搜索中…';
+
+    try {
+      const list = await query(q, 20);
+
+      labelEl.textContent = 'Search · ' + list.length + ' 条';
+      leadEl.textContent = list.length ? '共找到 ' + list.length + ' 条结果。' : '没有找到匹配的内容。';
+      resultsEl.innerHTML = list.length ? list.map(row).join('') : '';
+
+      document.title = '搜索：' + q + ' · Hu';
+    } catch (e) {
+      leadEl.textContent = '搜索出错了，稍后再试。';
+      renderEmpty('搜索服务暂时不可用。');
+    }
+  }
+
+  run();
+</script>

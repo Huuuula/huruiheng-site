@@ -1,0 +1,20 @@
+{
+  "name": "huruiheng-site",
+  "type": "module",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "astro dev",
+    "index": "node scripts/build-index.mjs",
+    "prebuild": "node scripts/build-index.mjs && node scripts/build-sitemap.mjs",
+    "build": "astro build",
+    "preview": "astro preview",
+    "check": "astro check"
+  },
+  "dependencies": {
+    "astro": "^5.13.0"
+  },
+  "devDependencies": {
+    "wrangler": "^4.156.0"
+  }
+}

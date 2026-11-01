@@ -1,0 +1,113 @@
+---
+/**
+ * 全站骨架。head 的每一项都对齐原站输出，改动请先对照 _baseline/html/。
+ */
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import SearchDialog from '../components/SearchDialog.astro';
+import ToTop from '../components/ToTop.astro';
+import { SITE } from '../lib/site';
+import '../styles/global.css';
+
+export interface Props {
+  /** 不含站点名，模板内部拼成「写作 · Hu」 */
+  title?: string;
+  description?: string;
+  ogType?: 'website' | 'article';
+  /** 文章页才显示顶部阅读进度条 */
+  showProgress?: boolean;
+}
+
+const {
+  title,
+  description = SITE.desc,
+  ogType = 'website',
+  showProgress = false,
+} = Astro.props;
+
+const site = Astro.site ?? new URL('https://huruiheng.pages.dev');
+const pageTitle = title ? `${title} · ${SITE.name}` : SITE.name;
+const canonical = new URL(Astro.url.pathname, site).href;
+const ogImage = new URL('/og.png', site).href;
+const rssUrl = new URL('/feed/', site).href;
+---
+
+<!doctype html>
+<html lang="zh-Hans">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+
+    <!-- 主题必须在样式前定好，否则会闪一下白底 -->
+    <script is:inline>
+      (function () {
+        try {
+          var saved = localStorage.getItem('theme');
+          var prefers = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          document.documentElement.dataset.theme = saved || (prefers ? 'dark' : 'light');
+        } catch (e) {
+          document.documentElement.dataset.theme = 'light';
+        }
+      })();
+    </script>
+
+    <!-- 旧链接兼容：原站搜索归档是 /?s=关键词，静态站没有运行时，转到 /search/ -->
+    <script is:inline>
+      (function () {
+        if (location.pathname !== '/' || !location.search) return;
+        var s = new URLSearchParams(location.search).get('s');
+        if (s) location.replace('/search/?q=' + encodeURIComponent(s));
+      })();
+    </script>
+
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="alternate" type="application/rss+xml" title="Hu · 写作" href={rssUrl} />
+
+    <meta property="og:type" content={ogType} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:site_name" content={SITE.name} />
+    <meta property="og:locale" content="zh_CN" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <meta name="theme-color" content="#faf9f5" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#262624" media="(prefers-color-scheme: dark)" />
+    <meta name="robots" content="max-image-preview:large" />
+
+    <link
+      rel="preload"
+      href="/fonts/inter-latin-wght-normal.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="/fonts/source-serif-4-latin-wght-normal.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">跳到正文</a>
+    {showProgress && <div class="progress" data-progress aria-hidden="true"></div>}
+    <Header />
+    <main id="main">
+      <slot />
+    </main>
+    <Footer />
+    <SearchDialog />
+    <ToTop />
+    <script>
+      import '../scripts/main.js';
+    </script>
+  </body>
+</html>

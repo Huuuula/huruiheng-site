@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.astro/
+.wrangler/
+__pycache__/
+.env
+.env.*
+!.env.example
+.DS_Store
+*.log

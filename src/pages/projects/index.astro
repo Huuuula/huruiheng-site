@@ -1,0 +1,61 @@
+---
+/**
+ * 项目归档 /projects/
+ * 对应原主题 archive-project.php：按状态分「在做的」「已完成」两组，
+ * 组内按编号升序，列表用 .project-card（不是文章列表的 .post-row）。
+ */
+import Base from '../../layouts/Base.astro';
+import ProjectCard from '../../components/ProjectCard.astro';
+import { getCollection } from 'astro:content';
+
+const projects = (await getCollection('projects')).sort((a, b) => {
+  const na = Number(a.data.no) || 0;
+  const nb = Number(b.data.no) || 0;
+  return na - nb || a.data.date.getTime() - b.data.date.getTime();
+});
+
+const active = projects.filter((p) => p.data.status !== '已完成');
+const done = projects.filter((p) => p.data.status === '已完成');
+
+const groups = [
+  { id: 'projects-active', title: '在做的', items: active },
+  { id: 'projects-done', title: '已完成', items: done },
+].filter((group) => group.items.length > 0);
+
+const indexOf = (no: string | undefined, fallback: number) =>
+  no?.trim() || String(fallback).padStart(2, '0');
+---
+
+<Base title="项目">
+  <div class="wrap">
+    <header class="page-head">
+      <p class="page-head__label">Projects · {projects.length} 项</p>
+      <h1>项目</h1>
+      <p class="page-head__lead">
+        只列能讲清楚为什么要做、以及卡在哪里的。做了一半放弃的不在这——那些写在文章里。
+      </p>
+    </header>
+
+    {groups.map((group) => (
+      <section class="section" aria-labelledby={group.id}>
+        <div class="section-head">
+          <h2 id={group.id}>{group.title}</h2>
+          <span class="section-head__count">{group.items.length} 项</span>
+        </div>
+        <div class="card-grid card-grid--three">
+          {group.items.map((project, i) => (
+            <ProjectCard
+              index={indexOf(project.data.no, i + 1)}
+              title={project.data.title}
+              desc={project.data.summary || project.data.excerpt}
+              chips={project.data.stack}
+              status={project.data.status || '进行中'}
+              done={project.data.status === '已完成'}
+              href={`/projects/${project.id}/`}
+            />
+          ))}
+        </div>
+      </section>
+    ))}
+  </div>
+</Base>

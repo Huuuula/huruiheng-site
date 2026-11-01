@@ -1,0 +1,4 @@
+/* 顺序不可调换：tokens 定义变量 → base 重置 → components 组件 */
+@import './tokens.css';
+@import './base.css';
+@import './components.css';

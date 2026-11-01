@@ -1,0 +1,8 @@
+# Cloudflare Pages 项目配置
+# 部署：npx wrangler pages deploy dist --project-name huruiheng
+name = "huruiheng"
+compatibility_date = "2026-10-30"
+pages_build_output_dir = "dist"
+
+# 纯静态站点：搜索索引在构建期生成（public/search-index.json），浏览器本地检索。
+# 不依赖 Functions / Workers / D1，Direct Upload 与 Git 部署都能直接用。

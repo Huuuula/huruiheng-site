@@ -1,0 +1,12 @@
+// 临时预览部署配置（无需登录 Cloudflare 账号）
+// npx wrangler deploy --config wrangler.worker.jsonc --temporary
+{
+  "name": "huruiheng-preview",
+  "main": "worker/index.ts",
+  "compatibility_date": "2026-10-30",
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "not_found_handling": "404-page"
+  }
+}

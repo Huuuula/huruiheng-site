@@ -1,0 +1,42 @@
+---
+/**
+ * 搜索弹窗。标记照抄 _baseline/html/ 的 <dialog class="search-dialog">，
+ * 结果列表由 main.js 渲染。
+ */
+---
+
+<dialog class="search-dialog" data-search-dialog aria-label="站内搜索">
+  <div class="search-panel">
+    <div class="search-field">
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.8"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.6-3.6"></path>
+      </svg>
+      <input
+        type="search"
+        placeholder="搜索文章…"
+        autocomplete="off"
+        aria-label="搜索关键词"
+        data-search-input
+      />
+      <kbd>esc</kbd>
+    </div>
+
+    <ul class="search-results" data-search-results>
+      <li class="search-empty">输入关键词开始搜索</li>
+    </ul>
+
+    <div class="search-foot">
+      <span><kbd>↑</kbd><kbd>↓</kbd> 选择</span>
+      <span><kbd>↵</kbd> 打开</span>
+      <span><kbd>esc</kbd> 关闭</span>
+    </div>
+  </div>
+</dialog>
