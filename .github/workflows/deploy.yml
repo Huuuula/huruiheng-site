@@ -27,13 +27,21 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # 凭证缺失时 wrangler 会报一句含糊的 "Authentication error"，
+      # 这里先自己检查，缺哪个直接说哪个。
+      - name: 校验部署凭证
+        run: |
+          test -n "$CLOUDFLARE_API_TOKEN" || { echo "::error::缺少 CLOUDFLARE_API_TOKEN"; exit 1; }
+          test -n "$CLOUDFLARE_ACCOUNT_ID" || { echo "::error::缺少 CLOUDFLARE_ACCOUNT_ID"; exit 1; }
+          echo "账户 ID 长度 ${#CLOUDFLARE_ACCOUNT_ID}，令牌长度 ${#CLOUDFLARE_API_TOKEN}"
+
       - uses: pnpm/action-setup@v4
         with:
           version: 10
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: pnpm
 
       - name: 安装依赖
